@@ -1,0 +1,33 @@
+Option Explicit
+'Script written by <Junichiro Horikawa>
+'Script copyrighted by <Junichiro Horikawa>
+'Script version 2012年2月2日 19:08:09
+
+Call Main()
+Sub Main()
+	Dim arrPlane, arrOrigin, arrOffset, arrPoint
+	Dim strObject,arrObjects,arrStart,arrEnd
+	Dim dblOffset
+	
+	arrObjects = Rhino.GetObjects("select lines", 4)
+	If Not IsArray(arrObjects) Then
+		Exit Sub
+	End If
+	
+	dblOffset = 0'Rhino.GetReal("Offset for aligned dimension", 10)
+	If IsNull(dblOffset) Then
+		Exit Sub
+	End If
+	
+	Rhino.EnableRedraw(False)
+	
+	For Each strObject In arrObjects
+		arrStart = Rhino.CurveStartPoint(strObject)
+		arrEnd = Rhino.CurveEndPoint(strObject)
+		arrPoint = Array(arrStart(0) + dblOffset, arrStart(1), arrStart(2))
+		arrPlane = Rhino.PlaneFromPoints(arrStart, arrEnd, Array(arrStart(0) + 1, arrStart(1) + 1, arrStart(2)))
+		Rhino.AddAlignedDimension arrPlane, arrStart, arrEnd, arrPoint
+	Next
+	
+	Rhino.EnableRedraw(True)
+End Sub
